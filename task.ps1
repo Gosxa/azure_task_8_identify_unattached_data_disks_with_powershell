@@ -1,17 +1,13 @@
-$unattechedDisks = @()
+$resourceGroupName = 'mate-azure-task-5'
 
-Get-AzDisk | ForEach-Object {
-    $disk = $_
-    $state = $disk.DiskState
-    $diskgroup = $disk.ResourceGroupName
-
-    if ($state -eq 'Unattached' -and $diskgroup -eq 'mate-azure-task-5') {
-        $unattechedDisks += $disk
-        Write-Output "Found unattached disk: $($disk.Name)"
+Get-AzDisk -ResourceGroupName $resourceGroupName | ForEach-Object {
+    if ($_.DiskState -eq 'Unattached') {
+        Write-Output "Found unattached disk: $($_.Name)"
+        $_
     }
     else {
-        Write-Output "Skipping disk: $($disk.Name) (State: $state)"
+        Write-Output "Skipping disk: $($_.Name) (State: $($_.DiskState))"
     }
-}
-
-$unattechedDisks | ConvertTo-Json | Out-File ./result.json
+} |
+ConvertTo-Json -Depth 3 |
+Out-File ./result.json
